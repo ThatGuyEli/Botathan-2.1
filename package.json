@@ -1,0 +1,21 @@
+{
+  "name": "botathan2.1",
+  "version": "0.1.0",
+  "description": "Personal Discord Bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "discord"
+  ],
+  "author": "Elijah Lieu",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^12.5.1",
+    "discord.js-commando": "github:discordjs/Commando"
+  },
+  "devDependencies": {
+    "@types/node": "^14.14.22"
+  }
+}
