@@ -1,6 +1,7 @@
 import { TextChannel } from 'discord.js';
 import Commando from 'discord.js-commando';
 import { join } from 'path';
+import { response } from './utils/response';
 
 const client = new Commando.Client({
   commandPrefix: '-',
@@ -18,16 +19,6 @@ client.registry
     eval: false,
   })
   .registerCommandsIn(join(__dirname, 'commands'));
-
-interface response {
-  readonly user?: string;
-  readonly input: string;
-  readonly output: string;
-  readonly caseSensitive?: boolean;
-  readonly punctuationSensitive?: boolean;
-}
-
-const responses: response[] = require('../data/responses.json');
 
 client.once('ready', () => {
   console.log(`Logged in as ${client.user?.tag}! (${client.user?.id})`);
@@ -78,24 +69,24 @@ client.on('channelPinsUpdate', (channel, date) => {
 });
 
 client.on('message', (msg) => {
+  // Prevent infinite loops of the bot responding to itself
   if (msg.author === client.user) return;
+  
 
-  responses.forEach((response) => {
-    let content = msg.content;
+  let content = msg.content;
 
-    if (!response.caseSensitive) content = content.toLowerCase();
-    if (!response.punctuationSensitive)
-      content = content.replace(/[^a-z0-9 ]+/, '');
-
-    const validMessage = response.input === content;
-    if (!validMessage) return;
-
-    const validUser =
-      response.user === undefined || response.user === msg.author.id;
-    if (!validUser) return;
-
-    msg.channel.send(response.output);
+  const responses: response[] = require('../data/responses.json');
+  const res = responses.find((res) => {
+    if (!res.caseSensitive) content = content.toLowerCase();
+    if (!res.punctuationSensitive) content = content.replace(/[^a-z0-9 ]+/, '');
+    return (
+      res.enabled &&
+      res.input === content &&
+      (res.user === undefined || res.user === msg.author.id)
+    );
   });
+
+  if (res) msg.channel.send(res.output);
 });
 
 client.login(process.env.TOKEN);

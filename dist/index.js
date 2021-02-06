@@ -20,7 +20,6 @@ client.registry
     eval: false,
 })
     .registerCommandsIn(path_1.join(__dirname, 'commands'));
-const responses = require('../data/responses.json');
 client.once('ready', () => {
     console.log(`Logged in as ${client.user?.tag}! (${client.user?.id})`);
     console.log(`Current Servers: ${client.guilds.cache.map((guild) => guild.toString())}`);
@@ -61,21 +60,21 @@ client.on('channelPinsUpdate', (channel, date) => {
         .then((pins) => textChannel.send(`Pins: ${pins.size}`));
 });
 client.on('message', (msg) => {
+    // Prevent infinite loops of the bot responding to itself
     if (msg.author === client.user)
         return;
-    responses.forEach((response) => {
-        let content = msg.content;
-        if (!response.caseSensitive)
+    let content = msg.content;
+    const responses = require('../data/responses.json');
+    const res = responses.find((res) => {
+        if (!res.caseSensitive)
             content = content.toLowerCase();
-        if (!response.punctuationSensitive)
+        if (!res.punctuationSensitive)
             content = content.replace(/[^a-z0-9 ]+/, '');
-        const validMessage = response.input === content;
-        if (!validMessage)
-            return;
-        const validUser = response.user === undefined || response.user === msg.author.id;
-        if (!validUser)
-            return;
-        msg.channel.send(response.output);
+        return (res.enabled &&
+            res.input === content &&
+            (res.user === undefined || res.user === msg.author.id));
     });
+    if (res)
+        msg.channel.send(res.output);
 });
 client.login(process.env.TOKEN);
