@@ -68,7 +68,7 @@ client.on('message', (msg) => {
         if (!response.caseSensitive)
             content = content.toLowerCase();
         if (!response.punctuationSensitive)
-            content = content.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '');
+            content = content.replace(/[^a-z0-9 ]+/, '');
         const validMessage = response.input === content;
         if (!validMessage)
             return;
