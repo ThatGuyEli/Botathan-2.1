@@ -8,7 +8,7 @@ function setEnabled(input, enabled) {
     const res = responses.find((res) => res.input === input);
     let filePath = path_1.join('data', 'responses.json');
     if (process.platform === 'linux')
-        filePath = path_1.join('..', '..', filePath);
+        filePath = path_1.join(__dirname, '..', '..', filePath);
     if (res)
         res.enabled = enabled;
     return fs_1.promises.writeFile(filePath, JSON.stringify(responses, null, 2) // Spacing of two
